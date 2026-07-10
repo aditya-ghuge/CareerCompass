@@ -1,6 +1,9 @@
 # CareerCompass AI
 
-**Professional AI-powered career counseling platform built for IBM Hackathon**
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](YOUR_RENDER_URL_HERE)
+[![Powered by IBM Granite](https://img.shields.io/badge/Powered_by-IBM_Granite-0f62fe.svg)](https://www.ibm.com/watsonx)
+
+**Professional AI-powered career counseling platform **
 
 Powered by **IBM Granite Foundation Model** · **IBM watsonx.ai** · **IBM BOB**
 
@@ -8,7 +11,28 @@ Powered by **IBM Granite Foundation Model** · **IBM watsonx.ai** · **IBM BOB**
 
 ## Overview
 
-CareerCompass AI is a production-quality career counseling platform that analyzes student profiles using IBM Granite on watsonx.ai and generates comprehensive, deeply personalized career guidance — not just answers, but complete career clarity with reasoning behind every recommendation.
+CareerCompass AI is a production-quality career counseling platform that analyzes student profiles and generates comprehensive, deeply personalized career guidance — not just answers, but complete career clarity with reasoning behind every recommendation.
+
+---
+
+## Key Features
+
+- **Deep AI Profile Parsing**: Understands your unique background, skills, and aspirations using IBM Granite.
+- **Actionable 24-Month Roadmap**: Generates a phase-by-phase timeline with specific focus areas and study plans.
+- **Salary Projections & Career Timeline**: Maps out your financial and role progression from Entry to Lead.
+- **Curated Projects & Certifications**: Recommends exact projects (sorted by difficulty) and certifications to build your resume.
+- **Export to PDF**: Generate a clean, branded PDF report of your career analysis instantly.
+
+---
+
+## Screenshots
+
+> **Note:** Add your screenshots here to show off the beautiful UI!
+> 
+> *Example format:*
+> `![Landing Page](static/img/screenshot_landing.png)`
+> `![Analysis Hub](static/img/screenshot_analyzing.png)`
+> `![Dashboard Report](static/img/screenshot_dashboard.png)`
 
 ---
 
