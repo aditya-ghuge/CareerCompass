@@ -1,7 +1,7 @@
 Flask==3.0.3
 Flask-CORS==4.0.1
 python-dotenv==1.0.1
-ibm-watsonx-ai==1.1.2
+ibm-watsonx-ai>=1.1.18
 reportlab==4.2.2
 Pillow==10.4.0
 gunicorn==22.0.0
