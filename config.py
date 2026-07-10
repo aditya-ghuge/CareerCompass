@@ -22,12 +22,12 @@ class Config:
     # ---------------------------------------------------------
     # IBM watsonx.ai
     # ---------------------------------------------------------
-    WATSONX_API_KEY = os.getenv("WATSONX_API_KEY", "")
-    WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID", "")
+    WATSONX_API_KEY = os.getenv("WATSONX_API_KEY", "").strip(" \"'")
+    WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID", "").strip(" \"'")
     WATSONX_URL = os.getenv(
         "WATSONX_URL",
         "https://au-syd.ml.cloud.ibm.com"
-    )
+    ).strip(" \"'")
 
     # ---------------------------------------------------------
     # Model
@@ -35,7 +35,7 @@ class Config:
     GRANITE_MODEL_ID = os.getenv(
         "GRANITE_MODEL_ID",
         "meta-llama/llama-3-3-70b-instruct"
-    )
+    ).strip(" \"'")
 
     # ---------------------------------------------------------
     # Generation Parameters
