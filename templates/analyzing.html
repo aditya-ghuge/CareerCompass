@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+
+{% block title %}Analyzing Your Profile — CareerCompass AI{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* =============================================================
+   ANALYZING PAGE STYLES
+   ============================================================= */
+  .analyzing-page {
+    min-height: 100vh;
+    padding-top: var(--nav-height);
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .analyzing-container {
+    max-width: 1200px;
+    width: 100%;
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .analyzing-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .analyzing-grid {
+      grid-template-columns: 1fr 2fr;
+      gap: 6rem;
+    }
+  }
+
+  .analyzing-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-2xl);
+    background: var(--color-ibm-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-6);
+    box-shadow: 0 12px 32px rgba(15, 98, 254, 0.25);
+    animation: pulseIcon 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseIcon {
+
+    0%,
+    100% {
+      box-shadow: 0 12px 32px rgba(15, 98, 254, .25);
+      transform: scale(1);
+    }
+
+    50% {
+      box-shadow: 0 16px 48px rgba(15, 98, 254, .4);
+      transform: scale(1.04);
+    }
+  }
+
+  .analyzing-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--fw-bold);
+    color: var(--color-text-primary);
+    letter-spacing: -0.03em;
+    margin-bottom: var(--space-3);
+  }
+
+  .analyzing-subtitle {
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-8);
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .analysis-progress {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    text-align: left;
+  }
+
+  .progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .progress-label {
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+  }
+
+  .progress-pct {
+    font-size: var(--text-sm);
+    font-weight: var(--fw-bold);
+    color: var(--color-ibm-blue);
+  }
+
+  .progress-bar-wrap {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--color-ibm-blue);
+    border-radius: var(--radius-full);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .analysis-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .analysis-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+    padding: var(--space-3) 0;
+    transition: color var(--transition-normal);
+    position: relative;
+  }
+
+  .analysis-step::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background: var(--color-border-subtle);
+    pointer-events: none;
+  }
+
+  @media (min-width: 900px) {
+    .analysis-step::after {
+      width: calc(100% + 6rem);
+      background: linear-gradient(90deg, var(--color-border-subtle) 0%, var(--color-border-subtle) 70%, transparent 100%);
+    }
+  }
+
+  .analysis-step:last-child {
+    border-bottom: none;
+  }
+
+  .analysis-step.active {
+    color: var(--color-ibm-blue);
+    font-weight: var(--fw-medium);
+  }
+
+  .analysis-step.done {
+    color: var(--color-success);
+  }
+
+  .step-status {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    border: 2px solid var(--color-border);
+    background: var(--color-bg);
+    transition: all var(--transition-normal);
+  }
+
+  .analysis-step.active .step-status {
+    border-color: var(--color-ibm-blue);
+    background: var(--color-ibm-blue-light);
+  }
+
+  .analysis-step.active .step-status::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-ibm-blue);
+    animation: dotBounce 0.8s ease-in-out infinite;
+  }
+
+  .analysis-step.done .step-status {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+  }
+
+  .analysis-step.done .step-status::before {
+    content: '✓';
+  }
+
+  @keyframes dotBounce {
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.4);
+    }
+  }
+
+  .analysis-microcopy {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-bottom: var(--space-6);
+    min-height: 22px;
+    transition: opacity var(--transition-normal);
+  }
+
+  .ibm-attribution {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 8px 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .error-state {
+    background: var(--color-error-light);
+    border: 1px solid rgba(218, 30, 40, 0.25);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    text-align: center;
+    display: none;
+  }
+
+  .error-state.visible {
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analyzing-page" id="analyzingPage">
+  <div class="analyzing-container">
+
+    <div class="analyzing-grid">
+      <!-- LEFT: Checkpoints -->
+      <div class="analysis-left-panel" style="text-align: left;">
+        <div class="analysis-steps" id="analysisSteps">
+          <div class="analysis-step" id="step-1">
+            <div class="step-status"></div>
+            <span>Validating and parsing profile data</span>
+          </div>
+          <div class="analysis-step" id="step-2">
+            <div class="step-status"></div>
+            <span>Sending to AI model... </span>
+          </div>
+          <div class="analysis-step" id="step-3">
+            <div class="step-status"></div>
+            <span>Analyzing career compatibility &amp; market demand</span>
+          </div>
+          <div class="analysis-step" id="step-4">
+            <div class="step-status"></div>
+            <span>Identifying skill gaps and strengths</span>
+          </div>
+          <div class="analysis-step" id="step-5">
+            <div class="step-status"></div>
+            <span>Generating personalized roadmap</span>
+          </div>
+          <div class="analysis-step" id="step-6">
+            <div class="step-status"></div>
+            <span>Curating project recommendations</span>
+          </div>
+          <div class="analysis-step" id="step-7">
+            <div class="step-status"></div>
+            <span>Building salary projections &amp; career timeline</span>
+          </div>
+          <div class="analysis-step" id="step-8">
+            <div class="step-status"></div>
+            <span>Finalizing your career report</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Content and Progress Bar -->
+      <div class="analyzing-content" style="text-align: center;">
+        <!-- Icon -->
+        <div class="analyzing-icon" id="analyzingIcon" style="background:transparent; box-shadow:none;">
+          <img src="/static/img/compass.png" alt="Analyzing"
+            style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+        </div>
+
+        <!-- Title -->
+        <h1 class="analyzing-title" id="analyzingTitle">
+          Analyzing your profile, <span id="studentFirstName">there</span>…
+        </h1>
+
+        <p class="analyzing-subtitle" id="analyzingSubtitle">
+          CareerCompass is performing a deep analysis of your skills, interests, and goals.
+          Please keep this tab open.
+        </p>
+
+        <!-- IBM Attribution -->
+        <div class="ibm-attribution" style="margin: 0 auto var(--space-6);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Processing with IBM Granite on Watsonx.ai
+        </div>
+
+        <!-- Progress bar only -->
+        <div style="text-align: left; margin-bottom: 0; padding-top: var(--space-4);">
+          <div class="progress-header" style="margin-bottom: var(--space-3);">
+            <span class="progress-label" style="font-size: var(--text-base);">Analysis Progress</span>
+            <span class="progress-pct" id="progressPct" style="font-size: var(--text-base);">0%</span>
+          </div>
+          <div class="progress-bar-wrap" style="height: 12px; background: var(--color-border-subtle);">
+            <div class="progress-bar-fill" id="progressBar"
+              style="width:0%; background: linear-gradient(90deg, var(--color-ibm-blue-mid), var(--color-ibm-blue)); box-shadow: 0 0 10px rgba(15, 98, 254, 0.4);">
+            </div>
+          </div>
+        </div>
+
+        <!-- Microcopy -->
+        <p class="analysis-microcopy" id="microcopy" style="margin-top: var(--space-8);">
+          "Every expert was once a beginner. Your journey starts here."
+        </p>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div class="error-state" id="errorState">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="1.5"
+        style="margin:0 auto 1rem;">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <h3 style="font-size:var(--text-xl);font-weight:700;color:var(--color-error);margin-bottom:.5rem;">Analysis Failed
+      </h3>
+      <p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6;margin-bottom:1.5rem;"
+        id="errorMessage">
+        Something went wrong during the analysis. This is usually a temporary issue.
+      </p>
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="retryAnalysis()">Try Again</button>
+        <a href="/profile" class="btn btn-secondary">Edit Profile</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // =============================================================
+  // Analyzing page — orchestrates API call and progress animation
+  // =============================================================
+
+  const MICROCOPY = [
+    "\"Every expert was once a beginner. Your journey starts here.\"",
+    "Analyzing skill compatibility across 50+ data dimensions…",
+    "\"The future belongs to those who prepare for it today.\"",
+    "Mapping your interests to high-growth career paths…",
+    "Identifying the fastest route from where you are to where you want to be…",
+    "\"Success is the sum of small efforts repeated day in and day out.\"",
+    "Building your personalized 24-month roadmap…",
+    "Calculating salary trajectories and market demand…",
+    "\"Your skills are your most valuable asset. Let's build them wisely.\"",
+  ];
+
+  let microcopyIndex = 0;
+  let microcopyInterval = null;
+  let progressInterval = null;
+  let currentProgress = 0;
+  let targetProgress = 0;
+  let analysisData = null;
+
+  // Step timing (simulated UI progress, actual API call is async)
+  const STEP_MILESTONES = [
+    { step: 1, pct: 10, delay: 300 },
+    { step: 2, pct: 20, delay: 800 },
+    { step: 3, pct: 38, delay: 2000 },
+    { step: 4, pct: 54, delay: 3500 },
+    { step: 5, pct: 68, delay: 5000 },
+    { step: 6, pct: 80, delay: 6500 },
+    { step: 7, pct: 90, delay: 8000 },
+    { step: 8, pct: 98, delay: 9500 },
+  ];
+
+  function setStep(stepNum, status) {
+    const el = document.getElementById(`step-${stepNum}`);
+    if (!el) return;
+    el.classList.remove('active', 'done');
+    if (status === 'active') el.classList.add('active');
+    if (status === 'done') el.classList.add('done');
+  }
+
+  function setProgress(pct) {
+    targetProgress = pct;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = Math.round(pct) + '%';
+  }
+
+  function rotateMicrocopy() {
+    microcopyIndex = (microcopyIndex + 1) % MICROCOPY.length;
+    const el = document.getElementById('microcopy');
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = MICROCOPY[microcopyIndex];
+      el.style.opacity = '1';
+    }, 200);
+  }
+
+  function showError(message) {
+    // Hide progress card
+    document.querySelector('.analysis-progress').style.display = 'none';
+    document.querySelector('.analysis-microcopy').style.display = 'none';
+    document.querySelector('.ibm-attribution').style.display = 'none';
+
+    // Update icon
+    const icon = document.getElementById('analyzingIcon');
+    icon.style.background = 'var(--color-error)';
+    icon.style.boxShadow = '0 12px 32px rgba(218,30,40,.2)';
+    icon.style.animation = 'none';
+
+    // Update title
+    document.getElementById('analyzingTitle').textContent = 'Analysis encountered an issue';
+    document.getElementById('analyzingSubtitle').style.display = 'none';
+
+    // Show error state
+    const errorState = document.getElementById('errorState');
+    document.getElementById('errorMessage').textContent = message;
+    errorState.classList.add('visible');
+
+    // Stop intervals
+    if (microcopyInterval) clearInterval(microcopyInterval);
+    if (progressInterval) clearInterval(progressInterval);
+  }
+
+  function retryAnalysis() {
+    // Reset state
+    document.querySelector('.analysis-progress').style.display = 'block';
+    document.querySelector('.analysis-microcopy').style.display = 'block';
+    document.querySelector('.ibm-attribution').style.display = 'inline-flex';
+    document.getElementById('errorState').classList.remove('visible');
+    document.getElementById('analyzingTitle').innerHTML = `Analyzing your profile, <span id="studentFirstName">${window._firstName || 'there'}</span>…`;
+    document.getElementById('analyzingSubtitle').style.display = 'block';
+    const icon = document.getElementById('analyzingIcon');
+    icon.style.background = 'var(--color-ibm-blue)';
+    icon.style.boxShadow = '0 12px 32px rgba(15,98,254,.25)';
+    icon.style.animation = 'pulseIcon 2s ease-in-out infinite';
+
+    // Reset all steps
+    for (let i = 1; i <= 8; i++) setStep(i, '');
+    setProgress(0);
+
+    startAnalysis();
+  }
+
+  async function startAnalysis() {
+    // Get profile from session storage
+    const profileStr = sessionStorage.getItem('careercompass_profile');
+    if (!profileStr) {
+      showError('No profile data found. Please fill out the profile form first.');
+      return;
+    }
+
+    let profile;
+    try {
+      profile = JSON.parse(profileStr);
+    } catch (e) {
+      showError('Profile data is corrupted. Please go back and fill out the form again.');
+      return;
+    }
+
+    // Set first name greeting
+    const firstName = (profile.name || 'there').split(' ')[0];
+    window._firstName = firstName;
+    document.getElementById('studentFirstName').textContent = firstName;
+
+    // Start microcopy rotation
+    microcopyInterval = setInterval(rotateMicrocopy, 4000);
+
+    // Schedule UI step animations
+    STEP_MILESTONES.forEach(({ step, pct, delay }) => {
+      setTimeout(() => {
+        // Mark previous step done
+        if (step > 1) setStep(step - 1, 'done');
+        setStep(step, 'active');
+        setProgress(pct);
+      }, delay);
+    });
+
+    // Make API call
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        const msg = data.error || 'The AI analysis failed. Please try again.';
+        const details = data.details ? `\n\nDetails: ${data.details}` : '';
+        showError(msg + details);
+        return;
+      }
+
+      analysisData = data.analysis;
+
+      // Mark all steps done
+      for (let i = 1; i <= 8; i++) setStep(i, 'done');
+      setProgress(100);
+
+      // Update UI
+      document.getElementById('analyzingTitle').textContent = `Your analysis is ready, ${firstName}!`;
+      document.getElementById('analyzingSubtitle').textContent =
+        'IBM watsonx.ai has completed your career analysis. Redirecting you to your report…';
+      document.getElementById('microcopy').textContent = '🎉 Analysis complete — your personalized career report awaits!';
+
+      if (microcopyInterval) clearInterval(microcopyInterval);
+
+      // Save to session storage
+      sessionStorage.setItem('careercompass_analysis', JSON.stringify(analysisData));
+
+      // Navigate to report
+      setTimeout(() => {
+        window.location.href = '/report';
+      }, 1800);
+
+    } catch (err) {
+      console.error('Analysis fetch error:', err);
+      showError(
+        'Could not connect to the CareerCompass AI service. Please check your connection and try again. ' +
+        'If the problem persists, verify that IBM watsonx.ai credentials are configured.'
+      );
+    }
+  }
+
+  // Start on load
+  document.addEventListener('DOMContentLoaded', startAnalysis);
+</script>
+{% endblock %}

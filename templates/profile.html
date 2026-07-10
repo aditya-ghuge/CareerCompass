@@ -1,0 +1,846 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile — CareerCompass AI{% endblock %}
+{% block meta_description %}Tell us about yourself so CareerCompass AI can analyze your career path using IBM Granite
+Foundation Model.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* =============================================================
+   PROFILE PAGE STYLES
+   ============================================================= */
+  .profile-page {
+    padding-top: var(--nav-height);
+    min-height: 100vh;
+    background: var(--color-surface-alt);
+  }
+
+  .profile-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 var(--space-8) 0 0;
+    gap: var(--space-10);
+  }
+
+  .profile-sidebar {
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    z-index: 10;
+  }
+
+  .sidebar-inner {
+    position: sticky;
+    top: var(--nav-height);
+    height: calc(100vh - var(--nav-height));
+    padding: var(--space-8) var(--space-6);
+    overflow-y: auto;
+  }
+
+  .sidebar-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    margin-bottom: var(--space-8);
+  }
+
+  .sidebar-title {
+    font-size: var(--text-base);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .sidebar-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .sidebar-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    transition: background var(--transition-fast);
+  }
+
+  .sidebar-step.active {
+    background: var(--color-ibm-blue-light);
+    color: var(--color-ibm-blue);
+    font-weight: var(--fw-semibold);
+  }
+
+  .sidebar-step.completed {
+    color: var(--color-success);
+  }
+
+  .step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-border);
+    flex-shrink: 0;
+    transition: background var(--transition-fast);
+  }
+
+  .sidebar-step.active .step-dot {
+    background: var(--color-ibm-blue);
+  }
+
+  .sidebar-step.completed .step-dot {
+    background: var(--color-success);
+  }
+
+  /* Main form */
+  .profile-form-card {
+    margin-top: var(--space-10);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .form-header {
+    padding: var(--space-8) var(--space-8) var(--space-6);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .form-body {
+    padding: var(--space-8);
+  }
+
+  .form-section {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .form-section-title {
+    font-size: var(--text-base);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .form-section-desc {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-5);
+    line-height: var(--leading-relaxed);
+  }
+
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-5);
+  }
+
+  .form-footer {
+    padding: var(--space-6) var(--space-8);
+    background: var(--color-surface-alt);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  /* Character counter */
+  .char-counter {
+    font-size: var(--text-xs);
+    color: var(--color-text-disabled);
+    text-align: right;
+    margin-top: var(--space-1);
+    transition: color var(--transition-fast);
+  }
+
+  .char-counter.warning {
+    color: var(--color-warning);
+  }
+
+  .char-counter.error {
+    color: var(--color-error);
+  }
+
+  /* Skill suggestions */
+  .skill-suggestions {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .skill-suggest-btn {
+    padding: 4px 12px;
+    font-size: var(--text-xs);
+    font-weight: var(--fw-medium);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .skill-suggest-btn:hover {
+    background: var(--color-ibm-blue-light);
+    color: var(--color-ibm-blue);
+    border-color: var(--color-ibm-blue-mid);
+  }
+
+  /* Submit button state */
+  .submit-btn {
+    min-width: 200px;
+    position: relative;
+  }
+
+  .submit-btn .btn-text {
+    transition: opacity var(--transition-fast);
+  }
+
+  .submit-btn .btn-loading {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  .submit-btn.loading .btn-text {
+    opacity: 0;
+  }
+
+  .submit-btn.loading .btn-loading {
+    display: flex;
+  }
+
+  /* Validation summary */
+  .validation-summary {
+    background: var(--color-error-light);
+    border: 1px solid rgba(218, 30, 40, 0.25);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    margin-bottom: var(--space-6);
+    display: none;
+  }
+
+  .validation-summary.visible {
+    display: block;
+  }
+
+  /* CGPA slider */
+  .cgpa-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .cgpa-value {
+    min-width: 48px;
+    text-align: center;
+    font-size: var(--text-xl);
+    font-weight: var(--fw-bold);
+    color: var(--color-ibm-blue);
+  }
+
+  @media (max-width: 900px) {
+    .profile-layout {
+      grid-template-columns: 1fr;
+      padding-left: var(--space-6);
+    }
+
+    .profile-sidebar {
+      border-right: none;
+    }
+    
+    .sidebar-inner {
+      position: static;
+      height: auto;
+      overflow-y: visible;
+    }
+
+    .form-grid-2,
+    .form-grid-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+  <div class="profile-layout">
+
+    <!-- ==========================================
+         SIDEBAR
+         ========================================== -->
+    <aside class="profile-sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-card">
+        <p class="sidebar-title">Profile Sections</p>
+        <div class="sidebar-steps" id="sidebarSteps">
+          <div class="sidebar-step active" data-section="personal">
+            <span class="step-dot"></span>Personal Information
+          </div>
+          <div class="sidebar-step" data-section="academic">
+            <span class="step-dot"></span>Academic Details
+          </div>
+          <div class="sidebar-step" data-section="skills">
+            <span class="step-dot"></span>Skills & Interests
+          </div>
+          <div class="sidebar-step" data-section="goals">
+            <span class="step-dot"></span>Career Goals
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <p class="sidebar-title" style="margin-bottom:.5rem;">Why We Ask This</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.6;">
+          Career Compass AI uses every field you fill in to generate a deeply personalized analysis.
+          The more detail you provide, the more accurate and actionable your report will be.
+        </p>
+      </div>
+
+      <div class="sidebar-card" style="background:var(--color-ibm-blue-light);border-color:var(--color-ibm-blue-mid);">
+        <div style="display:flex;align-items:flex-start;gap:.75rem;">
+          <div
+            style="width:32px;height:32px;background:var(--color-ibm-blue);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <div>
+            <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-ibm-blue);margin-bottom:.25rem;">Career
+              Compass
+              AI</p>
+            <p style="font-size:var(--text-xs);color:var(--color-ibm-blue);opacity:.8;line-height:1.5;">Your profile is
+              analyzed by Career Compass AI on watsonx.ai</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==========================================
+         MAIN FORM
+         ========================================== -->
+    <div class="profile-form-card">
+      <!-- Header -->
+      <div class="form-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <h1
+              style="font-size:var(--text-2xl);font-weight:var(--fw-bold);color:var(--color-text-primary);letter-spacing:-.02em;">
+              Your Career Profile</h1>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-top:.25rem;">Complete all
+              sections for the most accurate AI analysis.</p>
+          </div>
+          <div>
+            <span class="badge badge-blue">Takes ~3 minutes</span>
+          </div>
+        </div>
+
+        <!-- Overall progress bar -->
+        <div style="margin-top:1.25rem;">
+          <div
+            style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.375rem;">
+            <span>Profile completeness</span>
+            <span id="completenessLabel">0%</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressFill" style="width:0%;transition:width .5s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+        <!-- Validation summary -->
+        <div class="validation-summary" id="validationSummary">
+          <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-error);margin-bottom:.5rem;">Please fix
+            the following:</p>
+          <ul id="validationList" style="font-size:var(--text-sm);color:var(--color-error);padding-left:1rem;"></ul>
+        </div>
+
+        <form id="profileForm" novalidate>
+
+          <!-- === SECTION 1: Personal === -->
+          <div class="form-section" data-section="personal" id="section-personal">
+            <div class="form-section-title">
+              <span
+                style="width:24px;height:24px;background:var(--color-ibm-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:white;flex-shrink:0;">1</span>
+              Personal Information
+            </div>
+            <p class="form-section-desc">Help CareerCompass AI understand who you are — your name and age are used to
+              personalize your report.</p>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="name">Full Name <span class="required">*</span></label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Priya Sharma"
+                  maxlength="100" autocomplete="name" required />
+                <span class="form-error hidden" id="name-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="age">Age <span class="required">*</span></label>
+                <input type="number" id="age" name="age" class="form-control" placeholder="e.g., 20" min="15" max="60"
+                  required />
+                <span class="form-hint">Must be between 15 and 60</span>
+                <span class="form-error hidden" id="age-error"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- === SECTION 2: Academic === -->
+          <div class="form-section" data-section="academic" id="section-academic">
+            <div class="form-section-title">
+              <span
+                style="width:24px;height:24px;background:var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:white;flex-shrink:0;">2</span>
+              Academic Details
+            </div>
+            <p class="form-section-desc">Your academic background helps the AI understand your current knowledge base
+              and recommend the right starting point for your journey.</p>
+
+            <div class="form-group" style="margin-bottom:var(--space-5);">
+              <label class="form-label" for="college">College / University <span class="required">*</span></label>
+              <input type="text" id="college" name="college" class="form-control"
+                placeholder="e.g., Indian Institute of Technology, Delhi" maxlength="200" required />
+              <span class="form-error hidden" id="college-error"></span>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="branch">Branch / Major <span class="required">*</span></label>
+                <input type="text" id="branch" name="branch" class="form-control"
+                  placeholder="e.g., Computer Science Engineering" maxlength="150" required />
+                <span class="form-error hidden" id="branch-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="year">Current Year <span class="required">*</span></label>
+                <select id="year" name="year" class="form-control" required>
+                  <option value="">Select your year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                  <option value="Postgraduate">Postgraduate</option>
+                  <option value="Alumni">Alumni (Recent Graduate)</option>
+                </select>
+                <span class="form-error hidden" id="year-error"></span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:var(--space-5);">
+              <label class="form-label" for="cgpa">
+                CGPA / GPA <span class="required">*</span>
+                <span style="font-weight:400;color:var(--color-text-muted);">(out of 10.0)</span>
+              </label>
+              <div class="cgpa-display">
+                <input type="range" id="cgpa" name="cgpa" min="0" max="10" step="0.1" value="7.5"
+                  style="flex:1;accent-color:var(--color-ibm-blue);" oninput="updateCgpa(this.value)" />
+                <span class="cgpa-value" id="cgpaValue">7.5</span>
+              </div>
+              <div
+                style="display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.25rem;">
+                <span>0.0</span>
+                <span style="color:var(--color-warning);">5.0 — Average</span>
+                <span style="color:var(--color-success);">8.0+ — Excellent</span>
+                <span>10.0</span>
+              </div>
+              <span class="form-error hidden" id="cgpa-error"></span>
+            </div>
+          </div>
+
+          <!-- === SECTION 3: Skills === -->
+          <div class="form-section" data-section="skills" id="section-skills">
+            <div class="form-section-title">
+              <span
+                style="width:24px;height:24px;background:var(--color-warning);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:white;flex-shrink:0;">3</span>
+              Skills &amp; Interests
+            </div>
+            <p class="form-section-desc">This is the most important section. Be honest and specific — the AI uses your
+              skills to identify gaps, recommend certifications, and tailor project ideas exactly to your level.</p>
+
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label" for="skills">
+                Current Technical Skills <span class="required">*</span>
+              </label>
+              <textarea id="skills" name="skills" class="form-control"
+                placeholder="List your skills separated by commas&#10;e.g., Python, Machine Learning, SQL, Data Analysis, NumPy, Pandas, Scikit-learn, Git"
+                rows="4" maxlength="500" oninput="updateCharCount(this, 'skills-counter', 500)" required></textarea>
+              <div class="char-counter" id="skills-counter">0 / 500</div>
+              <span class="form-error hidden" id="skills-error"></span>
+
+              <!-- Quick-add suggestions by category -->
+              <div style="margin-top:.75rem;">
+                <p
+                  style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);margin-bottom:.5rem;">
+                  Quick Add Popular Skills:</p>
+                <div class="skill-suggestions">
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Python')">Python</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Java')">Java</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('JavaScript')">JavaScript</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Machine Learning')">Machine
+                    Learning</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('SQL')">SQL</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('React')">React</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Data Analysis')">Data
+                    Analysis</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Git')">Git</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Node.js')">Node.js</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('C++')">C++</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Deep Learning')">Deep
+                    Learning</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('AWS')">AWS</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('Docker')">Docker</button>
+                  <button type="button" class="skill-suggest-btn" onclick="addSkill('HTML/CSS')">HTML/CSS</button>
+                  <button type="button" class="skill-suggest-btn"
+                    onclick="addSkill('Communication')">Communication</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="interests">
+                Interests &amp; Passions <span class="required">*</span>
+              </label>
+              <textarea id="interests" name="interests" class="form-control"
+                placeholder="What topics excite you? What do you spend hours reading about?&#10;e.g., Artificial Intelligence, Robotics, Finance, Healthcare, Gaming, Open Source, Startups"
+                rows="3" maxlength="500" oninput="updateCharCount(this, 'interests-counter', 500)" required></textarea>
+              <div class="char-counter" id="interests-counter">0 / 500</div>
+              <span class="form-hint">Genuine interests help the AI recommend careers you'll love, not just be good
+                at.</span>
+              <span class="form-error hidden" id="interests-error"></span>
+            </div>
+          </div>
+
+          <!-- === SECTION 4: Goals === -->
+          <div class="form-section" data-section="goals" id="section-goals">
+            <div class="form-section-title">
+              <span
+                style="width:24px;height:24px;background:var(--color-purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:white;flex-shrink:0;">4</span>
+              Career Goals
+            </div>
+            <p class="form-section-desc">Tell the AI what you're aiming for. Even a rough idea is better than nothing —
+              the AI will refine it and suggest related careers you may not have considered.</p>
+
+            <div class="form-group" style="margin-bottom:var(--space-5);">
+              <label class="form-label" for="career_goal">
+                Primary Career Goal <span class="required">*</span>
+              </label>
+              <input type="text" id="career_goal" name="career_goal" class="form-control"
+                placeholder="e.g., Machine Learning Engineer at a top tech company" maxlength="300" required />
+              <span class="form-hint">Be as specific as you like. More specific goals lead to more targeted
+                recommendations.</span>
+              <span class="form-error hidden" id="career_goal-error"></span>
+
+              <!-- Career goal suggestions -->
+              <div style="margin-top:.75rem;">
+                <p
+                  style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);margin-bottom:.5rem;">
+                  Common Goals:</p>
+                <div class="skill-suggestions">
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Machine Learning Engineer')">Machine
+                    Learning Engineer</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Full Stack Developer')">Full Stack
+                    Developer</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Data Scientist')">Data
+                    Scientist</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('DevOps Engineer')">DevOps
+                    Engineer</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Product Manager')">Product
+                    Manager</button>
+                  <button type="button" class="skill-suggest-btn"
+                    onclick="setGoal('Cybersecurity Analyst')">Cybersecurity Analyst</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Cloud Solutions Architect')">Cloud
+                    Architect</button>
+                  <button type="button" class="skill-suggest-btn" onclick="setGoal('Mobile App Developer')">Mobile
+                    Developer</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="additional_guidelines">
+                Additional Context
+                <span style="font-weight:400;color:var(--color-text-muted);">(optional)</span>
+              </label>
+              <textarea id="additional_guidelines" name="additional_guidelines" class="form-control"
+                placeholder="Anything else the AI should know about your situation.&#10;e.g., I'm planning to study abroad. I have a startup idea in EdTech. I prefer remote work. I'm interested in switching from ECE to software."
+                rows="3" maxlength="500" oninput="updateCharCount(this, 'guidelines-counter', 500)"></textarea>
+              <div class="char-counter" id="guidelines-counter">0 / 500</div>
+              <span class="form-hint">Context like relocation plans, preferences, or unique situations helps the AI
+                tailor advice to your real life.</span>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Form footer -->
+      <div class="form-footer">
+        <div style="font-size:var(--text-sm);color:var(--color-text-muted);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="display:inline;vertical-align:middle;margin-right:.25rem;">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Your data is used only for this analysis session
+        </div>
+        <button type="submit" form="profileForm" class="btn btn-primary btn-lg submit-btn" id="submitBtn"
+          onclick="handleSubmit(event)">
+          <span class="btn-text">
+            Analyze My Career
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="display:inline;vertical-align:middle;margin-left:.25rem;">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </span>
+          <span class="btn-loading">
+            <div class="spinner"
+              style="width:18px;height:18px;border-width:2px;border-color:rgba(255,255,255,.3);border-top-color:white;">
+            </div>
+            Saving profile...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // ============================================================
+  // Profile page JavaScript
+  // ============================================================
+
+  let currentCgpa = 7.5;
+
+  function updateCgpa(val) {
+    currentCgpa = parseFloat(val);
+    const display = document.getElementById('cgpaValue');
+    display.textContent = currentCgpa.toFixed(1);
+    // Color-code
+    if (currentCgpa >= 8.0) {
+      display.style.color = 'var(--color-success)';
+    } else if (currentCgpa >= 6.0) {
+      display.style.color = 'var(--color-ibm-blue)';
+    } else {
+      display.style.color = 'var(--color-warning)';
+    }
+    updateProgress();
+  }
+
+  function updateCharCount(el, counterId, max) {
+    const counter = document.getElementById(counterId);
+    const len = el.value.length;
+    counter.textContent = `${len} / ${max}`;
+    counter.classList.remove('warning', 'error');
+    if (len > max * 0.9) counter.classList.add('warning');
+    if (len >= max) counter.classList.add('error');
+    updateProgress();
+  }
+
+  function addSkill(skill) {
+    const ta = document.getElementById('skills');
+    const current = ta.value.trim();
+    if (current.toLowerCase().includes(skill.toLowerCase())) {
+      showToast(`${skill} is already in your skills list.`, 'info', 2000);
+      return;
+    }
+    ta.value = current ? current + ', ' + skill : skill;
+    updateCharCount(ta, 'skills-counter', 500);
+    ta.focus();
+  }
+
+  function setGoal(goal) {
+    document.getElementById('career_goal').value = goal;
+    document.getElementById('career_goal').focus();
+    updateProgress();
+  }
+
+  // Progress tracking
+  function updateProgress() {
+    const fields = ['name', 'age', 'college', 'branch', 'year', 'skills', 'interests', 'career_goal'];
+    let filled = 0;
+    for (const f of fields) {
+      const el = document.getElementById(f);
+      if (el && el.value.trim().length > 0) filled++;
+    }
+    // Also check CGPA slider (always has value)
+    filled++;
+    const total = fields.length + 1;
+    const pct = Math.round((filled / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('completenessLabel').textContent = pct + '%';
+  }
+
+  // Sidebar highlight on scroll
+  function updateSidebarHighlight() {
+    const sections = ['personal', 'academic', 'skills', 'goals'];
+    let active = sections[0];
+    for (const s of sections) {
+      const el = document.getElementById('section-' + s);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 120) active = s;
+      }
+    }
+    document.querySelectorAll('.sidebar-step').forEach(step => {
+      step.classList.remove('active');
+      if (step.dataset.section === active) step.classList.add('active');
+    });
+  }
+
+  // Field validation
+  function validateField(id, value) {
+    const errorEl = document.getElementById(id + '-error');
+    if (!errorEl) return true;
+
+    let msg = '';
+    switch (id) {
+      case 'name':
+        if (!value.trim()) msg = 'Full name is required.';
+        break;
+      case 'age':
+        const age = parseInt(value);
+        if (!value) msg = 'Age is required.';
+        else if (isNaN(age) || age < 15 || age > 60) msg = 'Age must be between 15 and 60.';
+        break;
+      case 'college':
+        if (!value.trim()) msg = 'College / University name is required.';
+        break;
+      case 'branch':
+        if (!value.trim()) msg = 'Branch / Major is required.';
+        break;
+      case 'year':
+        if (!value) msg = 'Please select your current year.';
+        break;
+      case 'skills':
+        if (value.trim().length < 3) msg = 'Please enter at least one skill.';
+        break;
+      case 'interests':
+        if (!value.trim()) msg = 'Interests are required.';
+        break;
+      case 'career_goal':
+        if (value.trim().length < 5) msg = 'Career goal must be at least 5 characters.';
+        break;
+    }
+
+    const inputEl = document.getElementById(id);
+    if (msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.remove('hidden');
+      if (inputEl) inputEl.classList.add('error');
+      return false;
+    } else {
+      errorEl.classList.add('hidden');
+      errorEl.textContent = '';
+      if (inputEl) {
+        inputEl.classList.remove('error');
+        inputEl.classList.add('success');
+      }
+      return true;
+    }
+  }
+
+  // Attach live validation
+  const validatedFields = ['name', 'age', 'college', 'branch', 'year', 'skills', 'interests', 'career_goal'];
+  validatedFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('blur', () => validateField(id, el.value));
+      el.addEventListener('input', () => {
+        const errorEl = document.getElementById(id + '-error');
+        if (errorEl && !errorEl.classList.contains('hidden')) validateField(id, el.value);
+        updateProgress();
+      });
+    }
+  });
+
+  // Handle form submission
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Validate all required fields
+    const errors = [];
+    for (const id of validatedFields) {
+      const el = document.getElementById(id);
+      if (el && !validateField(id, el.value)) {
+        errors.push(document.getElementById(id + '-error').textContent);
+      }
+    }
+
+    if (errors.length > 0) {
+      const summary = document.getElementById('validationSummary');
+      const list = document.getElementById('validationList');
+      list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+      summary.classList.add('visible');
+      summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // Hide validation summary
+    document.getElementById('validationSummary').classList.remove('visible');
+
+    // Build profile object
+    const profile = {
+      name: document.getElementById('name').value.trim(),
+      age: parseInt(document.getElementById('age').value),
+      college: document.getElementById('college').value.trim(),
+      branch: document.getElementById('branch').value.trim(),
+      year: document.getElementById('year').value,
+      cgpa: currentCgpa,
+      skills: document.getElementById('skills').value.trim(),
+      interests: document.getElementById('interests').value.trim(),
+      career_goal: document.getElementById('career_goal').value.trim(),
+      additional_guidelines: document.getElementById('additional_guidelines').value.trim(),
+    };
+
+    // Save to sessionStorage and navigate
+    sessionStorage.setItem('careercompass_profile', JSON.stringify(profile));
+
+    // Set loading state
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    // Navigate to analyzing page
+    setTimeout(() => {
+      window.location.href = '/analyzing';
+    }, 500);
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    updateProgress();
+    window.addEventListener('scroll', updateSidebarHighlight, { passive: true });
+  });
+</script>
+{% endblock %}

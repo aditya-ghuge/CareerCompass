@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="{% block meta_description %}CareerCompass AI — Professional AI-powered career counseling platform powered by IBM watsonx.ai{% endblock %}" />
+  <title>{% block title %}CareerCompass AI{% endblock %}</title>
+
+  <!-- Favicon — compass rose on IBM Blue -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f62fe'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='white' stroke-width='1.5'/%3E%3Cpolygon points='16,7 18,15 16,13 14,15' fill='white'/%3E%3Cpolygon points='16,25 14,17 16,19 18,17' fill='rgba(255,255,255,0.45)'/%3E%3Ccircle cx='16' cy='16' r='2' fill='white'/%3E%3C/svg%3E" />
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-inner" style="max-width: 100%; padding: 0 2rem;">
+      <a href="/" class="navbar-brand" aria-label="CareerCompass AI home">
+        <div class="brand-logo" aria-hidden="true"
+          style="background:transparent;width:48px;height:48px;margin-left:-15px;">
+          <img src="/static/img/compass.png" alt="Logo"
+            style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+        </div>
+        <span class="brand-name" style="font-size:1.5rem;">CareerCompass</span>
+        <span class="brand-badge">AI</span>
+      </a>
+
+      <div class="navbar-right" style="display: flex; align-items: center; gap: 1.5rem;">
+        <nav class="navbar-nav" aria-label="Site navigation">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/#how-it-works" class="nav-link">How it Works</a>
+          <a href="/#features" class="nav-link">Features</a>
+          <a href="/#faq" class="nav-link">FAQ</a>
+        </nav>
+
+        <div class="navbar-cta" style="padding-right: 15px;">
+          <a href="/profile" class="btn btn-primary"
+            style="font-size:1.1rem; padding: 0.8rem 1.6rem; margin-right:-10px;">Get Career Analysis</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Main content -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="grid grid-4 gap-8" style="gap: 3rem;">
+        <div>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+            <div class="brand-logo" style="background:transparent;width:32px;height:32px;">
+              <img src="/static/img/compass.png" alt="Logo"
+                style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+            </div>
+            <span class="footer-brand-name">CareerCompass AI</span>
+          </div>
+          <p class="footer-tagline">
+            Professional AI-powered career counseling for every student.
+
+          </p>
+          <div style="margin-top:1.5rem;">
+            <div class="ibm-badge">
+              <span class="granite-badge-dot"></span>
+              Powered by IBM Granite
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="footer-heading">Platform</p>
+          <a href="/profile" class="footer-link">Start Analysis</a>
+          <a href="/#how-it-works" class="footer-link">How it Works</a>
+          <a href="/#features" class="footer-link">Features</a>
+          <a href="/#faq" class="footer-link">FAQ</a>
+        </div>
+
+        <div>
+          <p class="footer-heading">Analysis Areas</p>
+          <a href="#" class="footer-link">Career Matching</a>
+          <a href="#" class="footer-link">Skill Gap Analysis</a>
+          <a href="#" class="footer-link">Learning Roadmap</a>
+          <a href="#" class="footer-link">Project Guidance</a>
+          <a href="#" class="footer-link">PDF Reports</a>
+        </div>
+
+        <div>
+          <p class="footer-heading">Technology</p>
+          <a href="https://www.ibm.com/watsonx" class="footer-link" target="_blank" rel="noopener">IBM Watsonx.ai</a>
+          <a href="https://www.ibm.com/granite" class="footer-link" target="_blank" rel="noopener">IBM Granite </a>
+          <a href="https://www.ibm.com/ibm-bob" class="footer-link" target="_blank" rel="noopener">IBM BOB</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">
+          &copy; 2025 CareerCompass AI.
+          All career recommendations are AI-generated guidance, not professional advice.
+        </p>
+        <div class="ibm-badge">
+          <span class="granite-badge-dot"></span>
+          Developed by <a href="https://aditya-ghuge.github.io/portfolio/" style="color:white;font-weight:600;"
+            target="_blank" rel="noopener">Aditya Ghuge</a> &middot; B.Tech &middot; BE KIND.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Base JavaScript -->
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Toast system
+    function showToast(message, type = 'info', duration = 4000) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icons = { success: '✓', error: '✗', info: 'ℹ' };
+      toast.innerHTML = `<span style="font-size:1rem;flex-shrink:0;">${icons[type] || '•'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'toastIn 300ms ease reverse';
+        setTimeout(() => toast.remove(), 280);
+      }, duration);
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="/#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const hash = this.getAttribute('href').slice(1);
+        if (window.location.pathname === '/') {
+          e.preventDefault();
+          const target = document.querySelector(hash);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

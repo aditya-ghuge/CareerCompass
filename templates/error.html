@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — CareerCompass AI{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - var(--nav-height));display:flex;align-items:center;justify-content:center;padding-top:var(--nav-height);">
+  <div style="text-align:center;max-width:480px;padding:2rem;">
+    <div style="font-size:5rem;font-weight:800;color:var(--color-border);line-height:1;margin-bottom:1rem;">{{ code }}</div>
+    <h1 style="font-size:var(--text-2xl);font-weight:700;color:var(--color-text-primary);margin-bottom:.75rem;">{{ message }}</h1>
+    <p style="font-size:var(--text-base);color:var(--color-text-secondary);margin-bottom:2rem;line-height:1.6;">
+      {% if code == 404 %}The page you're looking for doesn't exist. You might have followed a broken link.
+      {% else %}Something went wrong on our end. Please try again in a moment.{% endif %}
+    </p>
+    <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/" class="btn btn-primary">Go Home</a>
+      <a href="/profile" class="btn btn-secondary">Start Analysis</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
