@@ -5,7 +5,7 @@
 
 **Professional AI-powered career counseling platform **
 
-Powered by **IBM Granite Foundation Model** · **IBM watsonx.ai** · **IBM BOB**
+
 
 ---
 
@@ -227,5 +227,5 @@ Browser
 
 ---
 
-*CareerCompass AI — Built for IBM Hackathon 2025*
+*CareerCompass AI *
 *Powered by IBM Granite Foundation Model on watsonx.ai*
