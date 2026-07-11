@@ -1,6 +1,6 @@
 # CareerCompass AI
 
-[![Live Demo](https://careercompass-g74q.onrender.com))
+[![Live Demo](https://careercompass-g74q.onrender.com)
 [![Powered by IBM Granite](https://img.shields.io/badge/Powered_by-IBM_Granite-0f62fe.svg)](https://www.ibm.com/watsonx)
 
 **Professional AI-powered career counseling platform **
