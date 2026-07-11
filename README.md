@@ -41,7 +41,7 @@ CareerCompass AI is a production-quality career counseling platform that analyze
 | Layer | Technology |
 |---|---|
 | Backend | Python Flask |
-| AI Model | IBM Granite (`ibm/granite-3-3-8b-instruct`) |
+| AI Model | IBM Granite  |
 | AI Platform | IBM watsonx.ai SDK |
 | Frontend | HTML5 · CSS3 · Vanilla JavaScript |
 | Charts | Chart.js 4 |
@@ -105,7 +105,7 @@ FLASK_SECRET_KEY=your_secret_key_here
 ```
 
 **Getting credentials:**
-1. Go to [IBM watsonx.ai](https://us-south.ml.cloud.ibm.com)
+1. Go to [IBM watsonx.ai](https://au-syd.ml.cloud.ibm.com)
 2. Create a project and note the Project ID
 3. Generate an API key from IBM Cloud IAM
 
@@ -228,4 +228,4 @@ Browser
 ---
 
 *CareerCompass AI *
-*Powered by IBM Granite Foundation Model on watsonx.ai*
+*Dsdigned by Aditya Ghuge*
