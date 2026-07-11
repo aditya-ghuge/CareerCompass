@@ -142,16 +142,23 @@ def safe_json_parse(text: str) -> dict | None:
     except json.JSONDecodeError:
         pass
 
-    # Try extracting JSON object
-    import re
-
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-
-    if match:
-        try:
-            return json.loads(match.group())
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
+    # Try extracting the first complete JSON object using a stack
+    start = text.find('{')
+    if start != -1:
+        stack = []
+        for i in range(start, len(text)):
+            if text[i] == '{':
+                stack.append('{')
+            elif text[i] == '}':
+                if stack:
+                    stack.pop()
+                if not stack:  # We found the matching closing brace
+                    json_str = text[start:i+1]
+                    try:
+                        return json.loads(json_str)
+                    except json.JSONDecodeError as e:
+                        logger.error(f"JSON decode error during extraction: {e}")
+                        break
 
     logger.warning("Could not parse JSON from model response.")
     return None
